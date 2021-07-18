@@ -1,25 +1,70 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useState } from 'react';
+import firstComponent from './components/firstComponent';
+import secondComponent from './components/secondComponent';
+import thirdComponent from './components/thirdComponent';
+import fourthComponent from './components/fourthComponent';
+import finalComponent from './components/finalComponent';
+ 
 function App() {
+ 
+  const [steps, setSteps] = useState([
+    { key: 'firstStep', label: 'My First Step', isDone: true, component: firstComponent },
+    { key: 'secondStep', label: 'My Second Step', isDone: false, component: secondComponent },
+    { key: 'thirdStep', label: 'My Third Step', isDone: false, component: thirdComponent },
+    { key: 'fourthStep', label: 'My fouth Step', isDone: false, component: fourthComponent },
+    { key: 'finalStep', label: 'My Final Step', isDone: false, component: finalComponent },
+  ]);
+ 
+  const [activeStep, setActiveStep] = useState(steps[0]);
+ 
+  const handleNext = () => {
+    if (steps[steps.length - 1].key === activeStep.key) {
+      alert('You have completed all steps.');
+      return;
+    }
+ 
+    const index = steps.findIndex(x => x.key === activeStep.key);
+    setSteps(prevStep => prevStep.map(x => {
+      if (x.key === activeStep.key) x.isDone = true;
+      return x;
+    }))
+    setActiveStep(steps[index + 1]);
+  }
+ 
+  const handleBack = () => {
+    const index = steps.findIndex(x => x.key === activeStep.key);
+    if (index === 0) return;
+ 
+    setSteps(prevStep => prevStep.map(x => {
+      if (x.key === activeStep.key) x.isDone = false;
+      return x;
+    }))
+    setActiveStep(steps[index - 1]);
+  }
+ 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h4>Step wizard in React</h4>
+      <div className="box">
+        <div className="steps">
+          <ul className="nav">
+            {steps.map((step, i) => {
+              return <li key={i} className={`${activeStep.key === step.key ? 'active' : ''} ${step.isDone ? 'done' : ''}`}>
+                <div>Step {i + 1}<br /><span>{step.label}</span></div>
+              </li>
+            })}
+          </ul>
+        </div>
+        <div className="step-component">
+          {activeStep.component()}
+        </div>
+        <div className="btn-component">
+          <input type="button" value="Back" onClick={handleBack} disabled={steps[0].key === activeStep.key} />
+          <input type="button" value={steps[steps.length - 1].key !== activeStep.key ? 'Next' : 'Submit'} onClick={handleNext} />
+        </div>
+      </div>
     </div>
   );
 }
-
+ 
 export default App;
